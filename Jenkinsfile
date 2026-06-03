@@ -1,11 +1,6 @@
 pipeline {
     agent any
 
-    environment {
-        NETLIFY_SITE_ID = 'd4d1e472-a358-4acb-af81-7b50c7e236c8'
-        NETLIFY_AUTH_TOKEN = credentialsId(netlify-token)
-    }
-
     stages {
 
         stage('Test') {
@@ -34,7 +29,6 @@ pipeline {
 
             steps {
                 sh '''
-                    npm install
                     npm run build
                     test -f build/index.html
                 '''
@@ -50,28 +44,11 @@ pipeline {
             }
 
             steps {
-                withCredentials([
-                    string(credentialsId: 'netlify-token', variable: 'NETLIFY_AUTH_TOKEN')
-                ]) {
-                    sh '''
-                        npm install
-                        npm install netlify-cli
-
-                        npx netlify deploy \
-                            --prod \
-                            --dir=build \
-                            --site=$NETLIFY_SITE_ID \
-                            --auth=$NETLIFY_AUTH_TOKEN
-                    '''
-                }
+                sh '''
+                    npm install netlify-cli
+                    npx netlify --version
+                '''
             }
-        }
-    }
-
-    post {
-        always {
-            junit allowEmptyResults: true,
-                  testResults: 'test-results/junit.xml'
         }
     }
 }
