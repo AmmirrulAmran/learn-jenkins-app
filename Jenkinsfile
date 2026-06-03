@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     stages {
-        stage('Build') {
+        stage('Deploy') {
 
             agent{
                 docker{
@@ -13,13 +13,9 @@ pipeline {
             steps {
                 
                 sh'''
-                    ls -la
-                    node --version
-                    npm --version
-                    npm ci
-                    npm ci
-                    npm run build
-                    ls -la
+                    npm install netlify-cli 
+                    netlify --version
+
                 '''
             }
         }
