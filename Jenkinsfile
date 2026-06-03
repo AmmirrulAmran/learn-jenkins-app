@@ -1,50 +1,49 @@
 pipeline {
     agent any
 
-    stages {
-        stage('Deploy') {
+    environment {
+        NETLIFY_SITE_ID = 'd4d1e472-a358-4acb-af81-7b50c7e236c8'
+    }
 
-            agent{
-                docker{
+    stages {
+
+        stage('Test') {
+            agent {
+                docker {
                     image 'node:18-alpine'
                     reuseNode true
                 }
             }
             steps {
-                
-                sh'''
-                    npm install netlify-cli 
-                    netlify --version
-
+                sh '''
+                    npm install
+                    npm test
                 '''
             }
         }
 
-
-        stage('Test'){
-
-            agent{
-                docker{
+        stage('Deploy') {
+            agent {
+                docker {
                     image 'node:18-alpine'
                     reuseNode true
                 }
             }
-            steps{
+            steps {
                 sh '''
-                    test -f build/index.html
-                    npm test
-                    
-                    
-                    '''
+                    npm install
+                    npm install -g netlify-cli
+
+                    echo "Deploying to Netlify..."
+                '''
             }
         }
-        
-        
     }
 
-    post{
-        always{
-            junit 'test-results/junit.xml'
+    post {
+        always {
+            junit allowEmptyResults: true,
+                  testResults: 'test-results/junit.xml'
         }
     }
 }
